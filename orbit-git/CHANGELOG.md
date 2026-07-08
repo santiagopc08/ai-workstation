@@ -7,7 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
+### Added (Sprint 2: Branches & Commits)
+- Full branch management via `BranchManager` (`create`, `delete`, `rename`, `checkout`, `merge`, `rebase`).
+- Full commit management via `CommitManager` (`add`, `add_all`, `create`, `amend`, `show`, `cherry_pick`).
+- New Domain Models: `Branch`, `Commit`, `MergeResult`, `RebaseResult`.
+- Full event publishing via `orbit-core` `EventBus` (`BranchCreated`, `BranchDeleted`, `BranchRenamed`, `BranchCheckedOut`, `MergeCompleted`, `RebaseCompleted`, `CommitCreated`, `CherryPickCompleted`).
+- Format-specific parsers in `GitOutputParser` for structured branch, commit, and conflict extraction without relying on fragile regexes.
+
+### Added (Sprint 1: Core Foundation)
 - Core architecture mapping (Models, Exceptions, Providers).
 - `GitEngine` facade providing public API for repository interactions.
 - `RepositoryManager` for domain logic surrounding repositories.

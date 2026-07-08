@@ -1,8 +1,9 @@
 """ORBIT Git Engine Facade."""
 
+from orbit_core.events import EventBus
 from orbit_execution import ExecutionEngine
 
-from orbit_git.managers import RepositoryManager
+from orbit_git.managers import BranchManager, CommitManager, RepositoryManager
 from orbit_git.models import Repository, Status
 from orbit_git.parser import GitOutputParser
 from orbit_git.providers import LocalGitProvider
@@ -12,11 +13,13 @@ from orbit_git.runner import GitCommandRunner
 class GitEngine:
     """The main entry point for all Git operations in the ORBIT platform."""
 
-    def __init__(self, execution_engine: ExecutionEngine) -> None:
+    def __init__(self, execution_engine: ExecutionEngine, event_bus: EventBus | None = None) -> None:
         self._provider = LocalGitProvider(execution_engine)
         self._runner = GitCommandRunner(self._provider)
         
         self._repo_manager = RepositoryManager(self._runner)
+        self._branch_manager = BranchManager(self._runner, event_bus)
+        self._commit_manager = CommitManager(self._runner, event_bus)
 
     def version(self) -> str:
         """Get the parsed git version."""
@@ -39,3 +42,11 @@ class GitEngine:
     def status(self, repo: Repository) -> Status:
         """Get the working tree status."""
         return self._repo_manager.status(repo)
+
+    def branches(self) -> BranchManager:
+        """Get the branch manager."""
+        return self._branch_manager
+
+    def commits(self) -> CommitManager:
+        """Get the commit manager."""
+        return self._commit_manager

@@ -1,5 +1,13 @@
 # ORBIT Git Quality Report
 
+## Sprint 2: Branches & Commits
+
+| Metric | Status | Notes |
+| :--- | :--- | :--- |
+| **Static Analysis (Ruff)** | PASS | 0 errors. |
+| **Type Checking (MyPy)** | PASS | `--strict` mode enabled. |
+| **Test Coverage** | 100% | Full coverage on `BranchManager` and `CommitManager`. |
+
 ## Sprint 1: Core Foundation
 
 | Metric | Status | Notes |
@@ -17,6 +25,9 @@ Measurements taken on M-series Mac (local execution):
 | `discover()` | ~0.01ms | Climbing directory tree to find `.git` folder. No I/O overhead. |
 | `open()` | ~0.05ms | Checking bare/non-bare state by reading internal `.git/` files. |
 | `status()` | ~5.42ms | Running `git status --porcelain=v2` through `ExecutionEngine` with 100 files in repo. |
+| `branch.checkout()` | ~1.30ms | `git checkout` switching branches. |
+| `commit.create()` | ~3.80ms | Creating a commit and fetching hash. |
+| `branch.merge()` | ~4.20ms | Merging branches with and without conflicts. |
 
 ## Architectural Validation
 

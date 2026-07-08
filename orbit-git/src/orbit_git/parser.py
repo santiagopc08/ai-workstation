@@ -4,7 +4,7 @@ import re
 from pathlib import Path
 
 from orbit_git.exceptions import GitError
-from orbit_git.models import GitVersion, RepositoryState, Status, StatusEntry
+from orbit_git.models import Branch, Commit, GitVersion, RepositoryState, Status, StatusEntry
 
 
 class GitOutputParser:
@@ -143,3 +143,38 @@ class GitOutputParser:
                 return RepositoryState.DETACHED_HEAD
                 
         return RepositoryState.CLEAN
+
+    @staticmethod
+    def parse_branches(output: str) -> list[Branch]:
+        """Parse `git branch --format="%(refname:short)|%(objectname)|%(HEAD)|%(upstream:short)"`"""
+        branches = []
+        for line in output.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            parts = line.split("|")
+            if len(parts) >= 3:
+                name = parts[0]
+                commit_hash = parts[1]
+                is_current = parts[2] == "*"
+                upstream = parts[3] if len(parts) > 3 and parts[3] else None
+                branches.append(Branch(name=name, commit_hash=commit_hash, is_current=is_current, upstream=upstream))
+        return branches
+
+    @staticmethod
+    def parse_commits(output: str) -> list[Commit]:
+        """Parse `git log --format="%H|%an|%s|%aI"`"""
+        commits = []
+        for line in output.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            parts = line.split("|", maxsplit=3)
+            if len(parts) == 4:
+                commits.append(Commit(hash=parts[0], author=parts[1], message=parts[2], date=parts[3]))
+        return commits
+
+    @staticmethod
+    def parse_conflict_files(output: str) -> list[str]:
+        """Parse `git diff --name-only --diff-filter=U`"""
+        return [line.strip() for line in output.splitlines() if line.strip()]
