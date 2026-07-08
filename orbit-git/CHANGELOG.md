@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `GitKnowledgeService` as an integration layer between ORBIT Git and ORBIT Knowledge (RFC-014).
+- Capability to generate structured markdown summaries for diffs, commits, history, and repository overviews.
+- Cross-engine referencing connecting modified code to documentation artifacts via `related_documents()` and `summarize_document()`.
+
+### Added
+
+- `DiffManager` for managing Git diffs (working tree, staged, commits, files) (RFC-013).
+- `HistoryManager` for history inspection, logs, and blame (RFC-013).
+- `Diff`, `DiffFile`, `DiffStats`, `BlameLine`, and `CommitReference` models.
+- Diff and History events (`DiffGenerated`, `HistoryLoaded`, `BlameCompleted`).
+- Support for detailed structured parsing of `git diff --numstat`, `git diff --name-status`, and `git blame --line-porcelain`.
+
+### Added
+
+- `RemoteManager` for managing Git remotes (RFC-012).
+- `Remote`, `FetchResult`, `PullResult`, `PushResult` models.
+- Remote events (`RemoteAdded`, `RemoteRemoved`, `RemoteRenamed`, `FetchCompleted`, `PullCompleted`, `PushCompleted`, `CloneCompleted`).
+- Support for `fetch`, `pull`, `push`, `clone`, and `ls-remote` operations.
+- `GitValidator.validate_url` for strict security validations to prevent embedded credentials and forbidden protocols like `ext::`.
+
 ### Added (Sprint 2: Branches & Commits)
 - Full branch management via `BranchManager` (`create`, `delete`, `rename`, `checkout`, `merge`, `rebase`).
 - Full commit management via `CommitManager` (`add`, `add_all`, `create`, `amend`, `show`, `cherry_pick`).

@@ -3,15 +3,17 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "orbit-git"
+name = "orbit-skills"
 version = "0.1.0"
-description = "ORBIT Git Engine"
+description = "ORBIT Skills — High-level orchestration layer for the ORBIT platform"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "orbit-core @ file:///Users/santi/AI/ai-workstation/orbit-core",
     "orbit-execution @ file:///Users/santi/AI/ai-workstation/orbit-execution",
+    "orbit-git @ file:///Users/santi/AI/ai-workstation/orbit-git",
     "orbit-knowledge @ file:///Users/santi/AI/ai-workstation/Python/Servers/orbit-knowledge",
+    "httpx>=0.27",
 ]
 
 [project.optional-dependencies]
@@ -19,14 +21,18 @@ dev = [
     "pytest",
     "pytest-cov",
     "mypy",
-    "ruff"
+    "ruff",
 ]
 
 [tool.hatch.metadata]
 allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/orbit_git"]
+packages = ["src/orbit_skills"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
 
 [tool.mypy]
 python_version = "3.10"
@@ -35,8 +41,12 @@ warn_return_any = true
 warn_unused_configs = true
 
 [[tool.mypy.overrides]]
-module = "orbit_execution.*"
+module = ["orbit_execution.*", "orbit_git.*", "knowledge.*", "httpx.*"]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disable_error_code = ["no-untyped-def"]
 
 [tool.ruff]
 src = ["src", "tests"]
@@ -48,3 +58,11 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 
 [tool.ruff.format]
 line-ending = "lf"
+
+[dependency-groups]
+dev = [
+    "mypy>=2.2.0",
+    "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.15.20",
+]

@@ -1094,19 +1094,11 @@ provides-extras = ["dev"]
 [[package]]
 name = "orbit-git"
 version = "0.1.0"
-source = { editable = "." }
+source = { directory = "/Users/santi/AI/ai-workstation/orbit-git" }
 dependencies = [
     { name = "orbit-core" },
     { name = "orbit-execution" },
     { name = "orbit-knowledge" },
-]
-
-[package.optional-dependencies]
-dev = [
-    { name = "mypy" },
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "ruff" },
 ]
 
 [package.metadata]
@@ -1138,6 +1130,56 @@ requires-dist = [
     { name = "mcp", specifier = ">=0.1.0" },
     { name = "pyyaml", specifier = ">=6.0.1" },
     { name = "starlette", specifier = ">=0.37.2" },
+]
+
+[[package]]
+name = "orbit-skills"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "httpx" },
+    { name = "orbit-core" },
+    { name = "orbit-execution" },
+    { name = "orbit-git" },
+    { name = "orbit-knowledge" },
+]
+
+[package.optional-dependencies]
+dev = [
+    { name = "mypy" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "ruff" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "mypy" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "ruff" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "httpx", specifier = ">=0.27" },
+    { name = "mypy", marker = "extra == 'dev'" },
+    { name = "orbit-core", directory = "/Users/santi/AI/ai-workstation/orbit-core" },
+    { name = "orbit-execution", directory = "/Users/santi/AI/ai-workstation/orbit-execution" },
+    { name = "orbit-git", directory = "/Users/santi/AI/ai-workstation/orbit-git" },
+    { name = "orbit-knowledge", directory = "/Users/santi/AI/ai-workstation/Python/Servers/orbit-knowledge" },
+    { name = "pytest", marker = "extra == 'dev'" },
+    { name = "pytest-cov", marker = "extra == 'dev'" },
+    { name = "ruff", marker = "extra == 'dev'" },
+]
+provides-extras = ["dev"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "mypy", specifier = ">=2.2.0" },
+    { name = "pytest", specifier = ">=9.1.1" },
+    { name = "pytest-cov", specifier = ">=7.1.0" },
+    { name = "ruff", specifier = ">=0.15.20" },
 ]
 
 [[package]]

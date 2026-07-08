@@ -94,3 +94,74 @@ class RebaseResult:
     """Result of a rebase operation."""
     success: bool
     conflicts: list[str] = field(default_factory=list)
+
+
+@dataclass(frozen=True, slots=True)
+class Remote:
+    """A Git remote."""
+    name: str
+    url: str
+    push_url: str
+
+
+@dataclass(frozen=True, slots=True)
+class FetchResult:
+    """Result of a fetch operation."""
+    success: bool
+    updated_refs: list[str] = field(default_factory=list)
+
+
+@dataclass(frozen=True, slots=True)
+class PullResult:
+    """Result of a pull operation."""
+    success: bool
+    conflicts: list[str] = field(default_factory=list)
+
+
+@dataclass(frozen=True, slots=True)
+class PushResult:
+    """Result of a push operation."""
+    success: bool
+    rejected_refs: list[str] = field(default_factory=list)
+
+
+@dataclass(frozen=True, slots=True)
+class DiffStats:
+    """Statistics for a diff."""
+    files_changed: int
+    insertions: int
+    deletions: int
+
+
+@dataclass(frozen=True, slots=True)
+class DiffFile:
+    """A file in a diff."""
+    path: str
+    status: str
+    old_path: str | None = None
+    insertions: int = 0
+    deletions: int = 0
+    patch: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class Diff:
+    """A collection of diff files and stats."""
+    files: list[DiffFile] = field(default_factory=list)
+    stats: DiffStats = field(default_factory=lambda: DiffStats(0, 0, 0))
+
+
+@dataclass(frozen=True, slots=True)
+class BlameLine:
+    """A line from git blame."""
+    line_number: int
+    commit_hash: str
+    author: str
+    date: str
+    content: str
+
+
+@dataclass(frozen=True, slots=True)
+class CommitReference:
+    """Reference to a commit (just the hash)."""
+    hash: str

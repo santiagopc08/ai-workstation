@@ -4,7 +4,18 @@ import re
 from pathlib import Path
 
 from orbit_git.exceptions import GitError
-from orbit_git.models import Branch, Commit, GitVersion, RepositoryState, Status, StatusEntry
+from orbit_git.models import (
+    BlameLine,
+    Branch,
+    Commit,
+    DiffFile,
+    DiffStats,
+    GitVersion,
+    Remote,
+    RepositoryState,
+    Status,
+    StatusEntry,
+)
 
 
 class GitOutputParser:
@@ -178,3 +189,137 @@ class GitOutputParser:
     def parse_conflict_files(output: str) -> list[str]:
         """Parse `git diff --name-only --diff-filter=U`"""
         return [line.strip() for line in output.splitlines() if line.strip()]
+
+    @staticmethod
+    def parse_remotes(output: str) -> list[Remote]:
+        """Parse `git remote -v`"""
+        remotes_dict: dict[str, dict[str, str]] = {}
+        for line in output.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            parts = line.split()
+            if len(parts) >= 3:
+                name = parts[0]
+                url = parts[1]
+                type_ = parts[2]
+                if name not in remotes_dict:
+                    remotes_dict[name] = {"fetch": url, "push": url}
+                if "(fetch)" in type_:
+                    remotes_dict[name]["fetch"] = url
+                elif "(push)" in type_:
+                    remotes_dict[name]["push"] = url
+                    
+        return [
+            Remote(name=name, url=data["fetch"], push_url=data["push"])
+            for name, data in remotes_dict.items()
+        ]
+
+    @staticmethod
+    def parse_ls_remote(output: str) -> dict[str, str]:
+        """Parse `git ls-remote` mapping refs to hashes."""
+        refs: dict[str, str] = {}
+        for line in output.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            parts = line.split()
+            if len(parts) >= 2:
+                hash_val = parts[0]
+                ref_name = parts[1]
+                refs[ref_name] = hash_val
+        return refs
+
+    @staticmethod
+    def parse_diff_numstat(output: str) -> DiffStats:
+        """Parse `git diff --numstat` to get overall stats."""
+        files = 0
+        insertions = 0
+        deletions = 0
+        for line in output.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            parts = line.split("\t")
+            if len(parts) >= 3:
+                files += 1
+                if parts[0] != "-":
+                    insertions += int(parts[0])
+                if parts[1] != "-":
+                    deletions += int(parts[1])
+        return DiffStats(files_changed=files, insertions=insertions, deletions=deletions)
+
+    @staticmethod
+    def parse_diff_files(name_status_out: str, numstat_out: str) -> list[DiffFile]:
+        """Combine `git diff --name-status` and `git diff --numstat` to get file details."""
+        stats_map = {}
+        for line in numstat_out.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            parts = line.split("\t")
+            if len(parts) >= 3:
+                path = parts[2]
+                ins = int(parts[0]) if parts[0] != "-" else 0
+                dels = int(parts[1]) if parts[1] != "-" else 0
+                stats_map[path] = (ins, dels)
+
+        files = []
+        for line in name_status_out.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            parts = line.split("\t")
+            status_code = parts[0]
+            if status_code.startswith("R") or status_code.startswith("C"):
+                # Rename or copy: status score old_path new_path
+                if len(parts) >= 3:
+                    old_path = parts[1]
+                    path = parts[2]
+                    ins, dels = stats_map.get(path, (0, 0))
+                    files.append(DiffFile(path=path, status=status_code[0], old_path=old_path, insertions=ins, deletions=dels))
+            else:
+                if len(parts) >= 2:
+                    path = parts[1]
+                    ins, dels = stats_map.get(path, (0, 0))
+                    files.append(DiffFile(path=path, status=status_code[0], insertions=ins, deletions=dels))
+        return files
+
+    @staticmethod
+    def parse_blame_porcelain(output: str) -> list[BlameLine]:
+        """Parse `git blame --line-porcelain`"""
+        lines: list[BlameLine] = []
+        
+        current_hash = ""
+        current_author = ""
+        current_date = ""
+        
+        for line in output.splitlines():
+            if not line:
+                continue
+            if line.startswith("\t"):
+                # Line content
+                # The first line of a new commit block starts with hash. But we only need to keep track.
+                # Actually, in porcelain, the line content is prefixed with a tab.
+                content = line[1:]
+                lines.append(BlameLine(
+                    line_number=len(lines) + 1,
+                    commit_hash=current_hash,
+                    author=current_author,
+                    date=current_date,
+                    content=content
+                ))
+            else:
+                parts = line.split(" ", 1)
+                key = parts[0]
+                val = parts[1] if len(parts) > 1 else ""
+                
+                # The first line of a block is always: <hash> <original line> <final line> [<group lines>]
+                if len(key) == 40 and all(c in "0123456789abcdef" for c in key):
+                    current_hash = key
+                elif key == "author":
+                    current_author = val
+                elif key == "author-time":
+                    current_date = val
+                    
+        return lines

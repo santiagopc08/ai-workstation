@@ -2,8 +2,9 @@
 
 import os
 from pathlib import Path
+from urllib.parse import urlparse
 
-from orbit_git.exceptions import RepositoryCorruptError, RepositoryNotFoundError
+from orbit_git.exceptions import GitError, RepositoryCorruptError, RepositoryNotFoundError
 from orbit_git.models import Repository, RepositoryState
 from orbit_git.parser import GitOutputParser
 
@@ -78,3 +79,38 @@ class GitValidator:
             current = parent
             
         raise RepositoryNotFoundError(f"Could not find a git repository starting from {start_path}")
+
+    @staticmethod
+    def validate_url(url: str) -> str:
+        """
+        Validate remote URL to prevent security issues like embedded credentials
+        or disallowed protocols.
+        """
+        if not url:
+            raise GitError("URL cannot be empty")
+            
+        if url.startswith("ext::"):
+            raise GitError("Remote-ext protocol (ext::) is forbidden for security reasons.")
+            
+        # Try to parse to check for credentials if it's a standard URL (http/https/ssh/git)
+        # However, SSH paths like user@host:repo.git might not parse perfectly via urlparse without scheme.
+        
+        # Check for explicit user:pass@ in the URL
+        if "://" in url:
+            parsed = urlparse(url)
+            if parsed.scheme not in ["http", "https", "ssh", "git", "file"]:
+                raise GitError(f"Unsupported protocol: {parsed.scheme}")
+            if parsed.password:
+                raise GitError("Embedded credentials in URLs are forbidden.")
+                
+        # For SSH scp-like syntax (user@host:path), we just block passwords
+        # E.g., user:pass@host:path is blocked by simple substring check
+        # But user@host is fine.
+        if "@" in url:
+            auth_part = url.split("@", 1)[0]
+            if ":" in auth_part and "://" not in auth_part:
+                # E.g., user:pass@host...
+                # Note: this might incorrectly flag ipv6, but typically git urls don't use raw ipv6 without brackets
+                raise GitError("Embedded credentials in URLs are forbidden.")
+                
+        return url

@@ -3,7 +3,7 @@
 from orbit_core.events import EventBus
 from orbit_execution import ExecutionEngine
 
-from orbit_git.managers import BranchManager, CommitManager, RepositoryManager
+from orbit_git.managers import BranchManager, CommitManager, DiffManager, HistoryManager, RemoteManager, RepositoryManager
 from orbit_git.models import Repository, Status
 from orbit_git.parser import GitOutputParser
 from orbit_git.providers import LocalGitProvider
@@ -20,6 +20,9 @@ class GitEngine:
         self._repo_manager = RepositoryManager(self._runner)
         self._branch_manager = BranchManager(self._runner, event_bus)
         self._commit_manager = CommitManager(self._runner, event_bus)
+        self._remote_manager = RemoteManager(self._runner, event_bus)
+        self._diff_manager = DiffManager(self._runner, event_bus)
+        self._history_manager = HistoryManager(self._runner, event_bus)
 
     def version(self) -> str:
         """Get the parsed git version."""
@@ -50,3 +53,19 @@ class GitEngine:
     def commits(self) -> CommitManager:
         """Get the commit manager."""
         return self._commit_manager
+
+    def remotes(self) -> RemoteManager:
+        """Get the remote manager."""
+        return self._remote_manager
+
+    def diff(self) -> DiffManager:
+        """Get the diff manager."""
+        return self._diff_manager
+
+    def history(self) -> HistoryManager:
+        """Get the history manager."""
+        return self._history_manager
+
+    def clone(self, url: str, target_path: str) -> Repository:
+        """Clone a remote repository to a local path."""
+        return self._remote_manager.clone(url, target_path)

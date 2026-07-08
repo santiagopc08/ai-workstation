@@ -7,8 +7,8 @@ import pytest
 from orbit_core.events import EventBus
 from orbit_execution import ExecutionEngine
 
-from orbit_git import GitEngine, Repository, RepositoryNotFoundError, RepositoryState
-from orbit_git.events import BranchCreated, CommitCreated, GitEvent, MergeCompleted
+from orbit_git import GitEngine, Repository
+from orbit_git.events import CommitCreated, GitEvent
 
 
 @pytest.fixture
