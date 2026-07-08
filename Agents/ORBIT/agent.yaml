@@ -1,0 +1,86 @@
+id: orbit-core
+
+name: ORBIT Core
+
+version: 1.0.0
+
+description: >
+  Asistente principal del laboratorio ORBIT.
+  Responsable de coordinar el razonamiento, la arquitectura,
+  la planificación y la integración entre agentes.
+
+model:
+
+  provider: lmstudio
+
+  default: qwen3.5-moe-35b
+
+  fallback: gemma4-26b
+
+parameters:
+
+  temperature: 0.3
+
+  top_p: 0.9
+
+  context_length: 32768
+
+memory:
+
+  enabled: true
+
+  provider: chromadb
+
+  collection: orbit-core
+
+rag:
+
+  enabled: true
+
+  knowledge_path: ../../Knowledge
+
+embeddings:
+
+  provider: lmstudio
+
+  model: bge-m3-mlx
+
+tools:
+
+  filesystem: true
+
+  terminal: false
+
+  docker: false
+
+  git: false
+
+  browser: false
+
+permissions:
+
+  read_files: true
+
+  write_files: false
+
+  internet: false
+
+  execute_commands: false
+
+personality:
+
+  style: professional
+
+  verbosity: adaptive
+
+  explain_reasoning: true
+
+documents:
+
+  constitution: ../../Docs/Constitution.md
+
+  principles: principles.md
+
+  tasks: tasks.md
+
+  system_prompt: system.md

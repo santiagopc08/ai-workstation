@@ -1,0 +1,55 @@
+version: 1.0
+
+default_agent: orbit-core
+
+agents:
+
+  orbit-core:
+
+    folder: ../Agents/ORBIT
+
+    model: qwen3.5-moe-35b
+
+    enabled: true
+
+  atlas:
+
+    folder: ../Agents/Atlas
+
+    model: qwen3.5-moe-35b
+
+    enabled: false
+
+  forge:
+
+    folder: ../Agents/Forge
+
+    model: qwen2.5-coder-32b
+
+    enabled: false
+
+  archivist:
+
+    folder: ../Agents/Archivist
+
+    model: gemma4-26b
+
+    enabled: false
+
+  operator:
+
+    folder: ../Agents/Operator
+
+    model: hermes-3-llama-3.1-8b
+
+    enabled: false
+
+settings:
+
+  shared_memory: true
+
+  shared_knowledge: true
+
+  use_constitution: true
+
+  logging: true
