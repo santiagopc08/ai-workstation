@@ -1,0 +1,66 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "orbit-knowledge"
+version = "3.0.0"
+description = "ORBIT Knowledge Engine and Semantic Indexer MCP Server"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    { name = "ORBIT Authors" }
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Operating System :: MacOS :: MacOS X",
+]
+dependencies = [
+    "fastmcp>=0.4.1",
+    "mcp>=0.1.0",
+    "pyyaml>=6.0.1",
+    "starlette>=0.37.2",
+]
+
+[project.scripts]
+orbit-knowledge = "orbit_knowledge.cli:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "mypy",
+    "ruff"
+]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/orbit_knowledge"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disable_error_code = ["no-untyped-def"]
+
+[tool.ruff]
+src = ["src", "tests"]
+target-version = "py310"
+line-length = 130
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.format]
+line-ending = "lf"

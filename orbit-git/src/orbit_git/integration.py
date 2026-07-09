@@ -6,11 +6,11 @@ from orbit_git.engine import GitEngine
 from orbit_git.models import Repository
 
 try:
-    from knowledge.services.knowledge_service import (  # type: ignore
+    from orbit_knowledge.services.knowledge_service import (  # type: ignore
         related_documents,
         summarize_document,
     )
-    from knowledge.services.project_service import project_metadata, project_summary  # type: ignore
+    from orbit_knowledge.services.project_service import project_metadata, project_summary  # type: ignore
 except Exception:
     # If orbit-knowledge is not installed or raises errors, fallback to stub functions.
     def summarize_document(path: str) -> str: return ""
@@ -40,7 +40,7 @@ class GitKnowledgeService:
             output.append(f"### `{f.path}` ({f.status})")
             output.append(f"*(+{f.insertions} / -{f.deletions})*")
             output.append("")
-            # Context from knowledge
+            # Context from orbit_knowledge
             try:
                 doc_summary = summarize_document(f.path)
                 output.append("**Knowledge Context:**")
