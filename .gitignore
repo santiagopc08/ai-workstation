@@ -24,6 +24,13 @@ Services/**/data/
 
 Services/**/cache/
 
+Services/**/vector_db/
+
+Services/**/uploads/
+
+*.db-shm
+*.db-wal
+
 # ORBIT ignores
 **/.venv/
 .orbit/
